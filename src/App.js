@@ -8,20 +8,22 @@ function App() {
   //  use state hooks
   const [todos, setTodo] = useState(todosData); 
   
-  const newTodo = {
-    "id": ++todos.length,
+  let newTodo = {
+    "id": todos.length + 1,
     "title": "",
     "status": ""
   };
 
   const createTodo = (e) => {
     e.preventDefault();
-    document.getElementById("favDialog").showModal();
     setTodo([...todos, newTodo]);
+    document.getElementById("favDialog").close();
   }
 
   const updateTodo = (e) => {
-    console.log("updating!!!");
+    newTodo = todos[Number(--e.target.id)];
+    console.log("updating!!!" + newTodo.title + e.target.id);
+    document.getElementById("favDialog").showModal();
   }
   
   const deleteTodo = (e) => {
@@ -32,15 +34,7 @@ function App() {
   return (
     <>
     {/* Header of the app */}
-    <header>
-      <span>TODO App</span>
-      <span id="addTodo">
-        <form onSubmit={createTodo}>
-          <input type="text" onBlur={e => newTodo.title = e.target.value} placeholder="Add Todo ...." name="addtodo"/>
-          <input type="submit" value="Add Todo" />
-        </form>
-      </span>
-    </header>
+    <header>TODO App</header>
 
     {/* List of todos - Section */}
     <section>
@@ -60,25 +54,26 @@ function App() {
       </ul>
     </section>
 
-
+    <button onClick={() => document.getElementById("favDialog").showModal()}>Add Todo</button>
 
     {/* pure HTML dialog element using */}
     <dialog id="favDialog">
-      <form>
+      <form onSubmit={createTodo}>
+          <button onClick={() => document.getElementById("favDialog").close()}>&times;</button>
         <p>
+        <input type="text" value={newTodo.title} required onBlur={e => newTodo.title = e.target.value} placeholder="Add Todo ...."/>
           <label>
-            Favorite animal:
-            <select>
-              <option value="default">Choose…</option>
-              <option>Brine shrimp</option>
-              <option>Red panda</option>
-              <option>Spider monkey</option>
+            Status:
+            <select required value={newTodo.status} onChange={e => newTodo.status = e.target.value}>
+              <option>Choose…</option>
+              <option>Completed</option>
+              <option>Working</option>
+              <option>Stopped</option>
             </select>
           </label>
         </p>
         <div>
-          <button value="cancel" formmethod="dialog">Cancel</button>
-          <button id="confirmBtn" value="default">Confirm</button>
+          <button type="submit" value="default">Confirm</button>
         </div>
       </form>
     </dialog>
