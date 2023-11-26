@@ -1,34 +1,91 @@
 import { useState } from 'react';
 import './App.css';
-import { todosData } from './todosData';
+// import { todosData } from './todosData';
 
 // App Component
 function App() {
 
+  // list of todos
+
+  const todosData = [
+    {
+      "title": "Buying Eggs",
+      "status": "pending"
+    },
+    {
+      "title": "Brush Your Teeth",
+      "status": "completed"
+    },
+    {
+      "title": "Take a Head Bath",
+      "status": "running"
+    }
+  ];
+
   //  use state hooks
   const [todos, setTodo] = useState(todosData); 
   
+  // const [newTodo, setNewTodo] = useState({"id": todos.length+1, "title": "", "status": ""});
+
   let newTodo = {
-    "id": todos.length + 1,
     "title": "",
     "status": ""
   };
 
+  let updateIndex = null;
+
   const createTodo = (e) => {
     e.preventDefault();
-    setTodo([...todos, newTodo]);
+    if (updateIndex === null) {
+      document.getElementById("myForm").reset();
+      console.log(newTodo);
+      setTodo([...todos, newTodo]);
+    } else {
+      const updatedTodos = todos.map((t, i) => {
+        if (i === updateIndex) {
+          return t = newTodo;
+        } else {
+          return t;
+        }
+      });
+      setTodo(updatedTodos);
+      updateIndex = null;
+    }
     document.getElementById("favDialog").close();
   }
 
-  const updateTodo = (e) => {
-    newTodo = todos[Number(--e.target.id)];
-    console.log("updating!!!" + newTodo.title + e.target.id);
-    document.getElementById("favDialog").showModal();
+  const updateTodo = (index) => {
+
+    // e.preventDefault();
+    // console.log(e.target.value);
+    // setNewTodo(todos[Number(--e.target.id)]);
+    // console.log("updating!!!" + newTodo.title + e.target.id);
+    let [user] = todos.filter( (t, i) => i === index);
+    // console.log(user);
+    // if (user.length === 0) {
+    //   console.warn("Create a new todo");
+    //   createTodo(e);
+    // } else { 
+      // console.log(user, todos);
+      document.getElementById("favDialog").showModal();
+      document.getElementById("updateTitle").value = user.title;
+      document.getElementById("updateStatus").value = user.status;
+      updateIndex = index;
+      // setTodo(todos.map(function(todo)
+      // {
+      //   if(todo.id === user[0].id)
+      //   {
+      //     todo.title = document.getElementById("updateTitle").value;
+      //     todo.status = document.getElementById("updateStatus").value;
+      //   }
+      //   return todo;
+      // }));
+      // console.log(todos);
+    // } 
   }
-  
-  const deleteTodo = (e) => {
-    console.log(e.target.id);
-    setTodo(todos.filter(a => a.id !== Number(e.target.id)));
+
+  const deleteTodo = (index) => {
+    setTodo(todos.filter((t, i) => i !== index ));
   }
 
   return (
@@ -40,14 +97,14 @@ function App() {
     <section>
       <h3>List of todos</h3>
       <ul>
-        {todos.map( todo => {
+        {todos.map( (todo, index) => {
           return(
-          <li key={todo.id}>
+          <li key={index}>
             <div>
-              <h6><span>{todo.id}</span>{todo.title}</h6>
+              <h6>{todo.title}</h6>
             </div>
-            <button id={todo.id} onClick={deleteTodo}>Delete</button>
-            <button id={todo.id} onClick={updateTodo}>Update</button>
+            <button onClick={() => deleteTodo(index)}>Delete</button>
+            <button onClick={() => updateTodo(index)}>Update</button>
           </li>
           );
         })}
@@ -58,13 +115,13 @@ function App() {
 
     {/* pure HTML dialog element using */}
     <dialog id="favDialog">
-      <form onSubmit={createTodo}>
-          <button onClick={() => document.getElementById("favDialog").close()}>&times;</button>
+      <form id="myForm" onSubmit={createTodo}>
+          <button type="button" onClick={() => document.getElementById("favDialog").close()}>&times;</button>
         <p>
-        <input type="text" value={newTodo.title} required onBlur={e => newTodo.title = e.target.value} placeholder="Add Todo ...."/>
+        <input type="text" id="updateTitle" required onChange={e => newTodo.title = e.target.value} placeholder="Add Todo ...."/>
           <label>
             Status:
-            <select required value={newTodo.status} onChange={e => newTodo.status = e.target.value}>
+            <select required id="updateStatus" onChange={e => newTodo.status = e.target.value}>
               <option>Choose…</option>
               <option>Completed</option>
               <option>Working</option>
